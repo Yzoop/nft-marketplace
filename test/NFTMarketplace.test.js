@@ -12,8 +12,10 @@ describe("NFTMarketplace", function () {
     const listingFee = await nftMarketplace.listingFee();
     const price = ethers.utils.parseEther("1");
 
+    // Mint NFT
     await nftMarketplace.mintNFT("https://token-uri.com", price, { value: listingFee });
 
+    // Buy NFT
     await expect(
       nftMarketplace.connect(buyer).buyNFT(1, { value: price })
     ).to.changeEtherBalances(
@@ -21,6 +23,7 @@ describe("NFTMarketplace", function () {
       [price, ethers.utils.parseEther("-1")]
     );
 
+    // Verify new owner
     const newOwner = await nftMarketplace.ownerOf(1);
     expect(newOwner).to.equal(buyer.address);
   });
