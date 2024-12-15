@@ -162,6 +162,32 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
         return ownershipHistory[tokenId];
     }
 
+    mapping(uint256 => bool) public featuredNFTs;
+
+    function setFeaturedNFT(uint256 tokenId, bool isFeatured) public onlyOwner {
+        require(_exists(tokenId), "Token does not exist");
+        featuredNFTs[tokenId] = isFeatured;
+    }
+
+    function getFeaturedNFTs() public view returns (uint256[] memory) {
+        uint256 count;
+        for (uint256 i = 1; i <= tokenCount; i++) {
+            if (featuredNFTs[i]) count++;
+        }
+
+        uint256[] memory result = new uint256[](count);
+        uint256 index;
+
+        for (uint256 i = 1; i <= tokenCount; i++) {
+            if (featuredNFTs[i]) {
+                result[index] = i;
+                index++;
+            }
+        }
+
+        return result;
+    }
+
 }
 
 async function fetchNFTs(contract) {
