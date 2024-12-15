@@ -56,21 +56,7 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
         emit NFTSold(tokenId, msg.sender);
     }
 
-    async function fetchNFTs(contract) {
-            const totalSupply = await contract.tokenCount();
-            let nftList = [];
 
-            for (let i = 1; i <= totalSupply; i++) {
-            const nft = await contract.nfts(i);
-            nftList.push({
-                tokenId: i,
-                seller: nft.seller,
-                owner: nft.owner,
-                price: ethers.utils.formatEther(nft.price),
-                listed: nft.listed,
-            });
-        }
-    }
 
   return nftList.filter(nft => nft.listed); // Show only listed NFTs
 }
@@ -163,5 +149,33 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
             emit NFTListed(tokenId, price, msg.sender);
         }
     }
+    mapping(uint256 => address[]) public ownershipHistory;
 
+    function transferNFT(address to, uint256 tokenId) internal {
+        require(_exists(tokenId), "Token does not exist");
+
+        ownershipHistory[tokenId].push(to);
+        _transfer(msg.sender, to, tokenId);
+    }
+
+    function getOwnershipHistory(uint256 tokenId) public view returns (address[] memory) {
+        return ownershipHistory[tokenId];
+    }
+
+}
+
+async function fetchNFTs(contract) {
+        const totalSupply = await contract.tokenCount();
+        let nftList = [];
+
+        for (let i = 1; i <= totalSupply; i++) {
+        const nft = await contract.nfts(i);
+        nftList.push({
+            tokenId: i,
+            seller: nft.seller,
+            owner: nft.owner,
+            price: ethers.utils.formatEther(nft.price),
+            listed: nft.listed,
+        });
+    }
 }
