@@ -147,4 +147,21 @@ contract NFTMarketplace is ERC721URIStorage, Ownable {
         emit AuctionEnded(tokenId, auction.highestBidder, auction.highestBid);
     }
 
+    function bulkListNFTs(uint256[] memory tokenIds, uint256[] memory prices) public {
+        require(tokenIds.length == prices.length, "Token IDs and prices must match");
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+            uint256 price = prices[i];
+
+            require(msg.sender == nfts[tokenId].owner, "Only the owner can list this NFT");
+            require(price > 0, "Price must be greater than zero");
+
+            nfts[tokenId].price = price;
+            nfts[tokenId].listed = true;
+
+            emit NFTListed(tokenId, price, msg.sender);
+        }
+    }
+
 }
